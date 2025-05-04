@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MOCHE Quest - Jogo do Galo">
+  <title>MOCHE Quest - Jogo do Galo</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="js/translations.js"></script>
+  <style>
+    body {
+      font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #232526 0%, #414345 100%);
+      min-height: 100vh;
+      margin: 0;
+    }
+    .game-container {
+      max-width: 800px;
+      margin: 4rem auto 0 auto;
+      padding: 2.5rem 2rem 2rem 2rem;
+      background: #fff;
+      border-radius: 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      position: relative;
+    }
+    .game-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+    .game-title {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      color: var(--moche-black, #222);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px rgba(255,215,0,0.08);
+    }
+    .game-title i {
+      font-size: 2.5rem;
+      color: var(--primary-color, #FFD700);
+      filter: drop-shadow(0 2px 8px #FFD70033);
+    }
+    .game-stats {
+      display: flex;
+      gap: 1.5rem;
+      background: #fffbe6;
+      padding: 0.8rem 2rem;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(255,215,0,0.08);
+      margin-left: 2rem;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #666;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .stat-item i {
+      color: var(--primary-color, #FFD700);
+    }
+    .galo-board {
+      margin: 2.5rem auto 1rem auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #fffbe6;
+      border-radius: 18px;
+      box-shadow: 0 2px 16px rgba(255,215,0,0.07);
+      padding: 2rem 1rem 1.5rem 1rem;
+    }
+    .galo-table {
+      border-collapse: collapse;
+      margin: 0 auto;
+      background: #fff9e2;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(255,215,0,0.10);
+    }
+    .galo-table td {
+      border: 2px solid #FFD700;
+      width: 100px;
+      height: 100px;
+      background: #fff9e2;
+      text-align: center;
+      vertical-align: middle;
+      padding: 0;
+      transition: background 0.2s;
+    }
+    .galo-table td:hover {
+      background: #fff3b0;
+      cursor: pointer;
+    }
+    .galo-table img {
+      width: 80px;
+      height: 80px;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+      will-change: transform, opacity;
+    }
+    .galo-table img[src*="logo_moche.png"] {
+      opacity: 0.7;
+      width: 50px;
+      height: 50px;
+    }
+    .galo-table img:not([src*="logo_moche.png"]) {
+      animation: popIn 0.3s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      80% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    .galo-controls {
+      margin: 1.5rem 0 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .galo-score {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1.2rem;
+      font-size: 1.15rem;
+      color: #222;
+      font-weight: 600;
+      background: #ffe066;
+      border-radius: 18px;
+      padding: 0.7rem 2rem;
+      box-shadow: 0 2px 12px rgba(255,215,0,0.10);
+      border: 1.5px solid #FFD700;
+      align-items: center;
+    }
+    .galo-score span {
+      color: #000;
+      font-weight: bold;
+    }
+    .galo-dificuldade {
+      margin-bottom: 1rem;
+      font-size: 1.05rem;
+      color: #333;
+      font-weight: 500;
+      background: #fffbe6;
+      border-radius: 10px;
+      padding: 0.4rem 1.2rem;
+      box-shadow: 0 2px 8px rgba(255,215,0,0.07);
+    }
+    .galo-dificuldade select {
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #FFD700;
+      font-weight: 600;
+      background: #fff9e2;
+      color: #222;
+      margin-left: 0.5rem;
+    }
+    .galo-timer {
+      font-size: 1.2rem;
+      text-align: center;
+      font-weight: bold;
+      color: #000;
+      margin-bottom: 1.2rem;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #FFD70022;
+    }
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--primary-color, #FFD700);
+      color: #000;
+      padding: 1rem 2rem;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      font-weight: 600;
+      z-index: 9999;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @media (max-width: 600px) {
+      .game-container {
+        padding: 1rem;
+      }
+      .galo-table td {
+        width: 48px;
+        height: 48px;
+      }
+      .galo-table img {
+        width: 36px;
+        height: 36px;
+      }
+      .galo-board {
+        padding: 1rem 0.2rem 1rem 0.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-flex">
+      <img src="assets/images/logo_moche.png" alt="Logo MOCHE" class="logo-moche">
+      <div class="header-title">
+        <p data-translate="headerTitle">Gamifica a tua experiência. Ganha prémios. Diverte-te!</p>
+      </div>
+      <div class="header-actions">
+        <div id="user-pontos" class="user-pontos"><i class="fa-solid fa-coins"></i> <span id="pontos-header">0</span> <span data-translate="pontos">pts</span></div>
+        <select id="language-select" class="header-btn lang-select">
+          <option value="pt">PT</option>
+          <option value="en">EN</option>
+        </select>
+        <button class="header-btn profile-btn" onclick="window.location.href='index.html#perfil'" data-translate="perfil">Perfil</button>
+        <button class="header-btn help-btn" onclick="window.open('https://www.moche.pt/ajuda/', '_blank')" data-translate="ajuda">Ajuda</button>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html" class="nav-link" data-translate="inicio"><i class="fa-solid fa-house"></i> Início</a></li>
+        <li><a href="galo_runner.html" class="nav-link" data-translate="galoRunner"><i class="fa-solid fa-gamepad"></i> Galo Runner</a></li>
+        <li><a href="jogodogalo.html" class="nav-link active" data-translate="galoGame"><i class="fa-solid fa-table-cells-large"></i> Jogo do Galo</a></li>
+        <li><a href="index.html#loja" class="nav-link" data-translate="loja"><i class="fa-solid fa-store"></i> Loja</a></li>
+        <li><a href="index.html#roda" class="nav-link" data-translate="roda"><i class="fa-solid fa-circle-notch"></i> Roda da Sorte</a></li>
+        <li><a href="index.html#perfil" class="nav-link" data-translate="perfil"><i class="fa-solid fa-user"></i> Perfil</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="container">
+    <div class="game-container">
+      <div class="game-header">
+        <div class="game-title">
+          <i class="fa-solid fa-table-cells-large"></i>
+          <h2 data-translate="galoGame">Jogo do Galo</h2>
+        </div>
+        <div class="game-stats">
+          <div class="stat-item">
+            <i class="fa-solid fa-trophy"></i>
+            <span id="score-x" data-translate="jogadorX">X: 0</span>
+          </div>
+          <div class="stat-item">
+            <i class="fa-solid fa-trophy"></i>
+            <span id="score-o" data-translate="jogadorO">O: 0</span>
+          </div>
+        </div>
+      </div>
+      <div class="galo-board">
+        <div class="galo-timer" id="contagem_decrescente" data-translate="tempoRestante">Tempo restante: __</div>
+        <div class="galo-score">
+          <span data-translate="jogadorX">Jogador X:</span> <input id="jogadorx" name="jogadorx" type="text" value="0" style="width: 60px; text-align:center;" readonly />
+          <span data-translate="jogadorO">Jogador O:</span> <input id="jogadoro" name="jogadoro" type="text" value="0" style="width: 60px; text-align:center;" readonly />
+        </div>
+        <div class="galo-dificuldade">
+          <span data-translate="dificuldade">Dificuldade:</span>
+          <select id="dificuldade" onchange="mudaDificuldade()">
+            <option value="facil" data-translate="facil">Fácil</option>
+            <option value="medio" selected data-translate="medio">Médio</option>
+            <option value="dificil" data-translate="dificil">Difícil</option>
+          </select>
+        </div>
+        <table class="galo-table">
+          <tr>
+            <td><img id="celula1" name="celula1" src="assets/images/logo_moche.png" alt="imagem inicial" onclick="muda_imagem(1)"></td>
+            <td><img id="celula2" name="celula2" src="assets/images/logo_moche.png" alt="imagem inicial" onclick="muda_imagem(2)"></td>
+            <td><img id="celula3" name="celula3" src="assets/images/logo_moche.png" alt="imagem inicial" onclick="muda_imagem(3)"></td>
+          </tr>
+          <tr>
+            <td><img id="celula4" name="celula4" src="assets/images/logo_moche.png" alt="imagem inicial" onclick="muda_imagem(4)"></td>
+            <td><img id="celula5" name="celula5" src="assets/images/logo_moche.png" alt="imagem inicial" onclick="muda_imagem(5)"></td>
+            <td><img id="celula6" name="celula6" src="assets/images/logo_moche.png" alt="imagem inicial" onclick="muda_imagem(6)"></td>
+          </tr>
+          <tr>
+            <td><img id="celula7" name="celula7" src="assets/images/logo_moche.png" alt="imagem inicial" onclick="muda_imagem(7)"></td>
+            <td><img id="celula8" name="celula8" src="assets/images/logo_moche.png" alt="imagem inicial" onclick="muda_imagem(8)"></td>
+            <td><img id="celula9" name="celula9" src="assets/images/logo_moche.png" alt="imagem inicial" onclick="muda_imagem(9)"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </main>
+  <script src="js/jogogalo.js"></script>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="assets/images/logo_moche.png" alt="Logo MOCHE" class="logo-moche">
+          <span>MOCHE Quest</span>
+        </div>
+        <div class="footer-info">
+          <p data-translate="plataforma">Plataforma de Gamificação</p>
+          <p data-translate="desenvolvidoPor">Desenvolvido por <a href="https://github.com/LuquinhasCTR" target="_blank">Lucas Silva</a> e <a href="https://github.com/simao261" target="_blank">Simão Rodrigues</a> &copy; 2025</p>
+          <p data-translate="marcaAltice">Uma marca da Altice Portugal</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://www.moche.pt/ajuda/" target="_blank"><i class="fa-solid fa-circle-question"></i> <span data-translate="ajuda">Ajuda</span></a>
+          <a href="https://www.moche.pt/termos/" target="_blank"><i class="fa-solid fa-file-contract"></i> <span data-translate="termos">Termos e Condições</span></a>
+          <a href="https://www.moche.pt/privacidade/" target="_blank"><i class="fa-solid fa-shield-halved"></i> <span data-translate="privacidade">Privacidade</span></a>
+          <a href="https://www.moche.pt/" target="_blank"><i class="fa-solid fa-info-circle"></i> <span data-translate="sobre">Sobre</span></a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p data-translate="direitos">Todos os direitos reservados. MOCHE é uma marca registada da Altice Portugal.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

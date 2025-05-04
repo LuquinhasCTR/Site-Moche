@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MOCHE Quest - Galo Runner">
+  <title>MOCHE Quest - Galo Runner</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--primary-color);
+      color: #000;
+      padding: 1rem 2rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      animation: slideIn 0.3s ease;
+      z-index: 1000;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .xp-fill {
+      background: linear-gradient(90deg, #7CD9C8 0%, #4DB6AC 100%) !important;
+    }
+
+    .game-canvas {
+      width: 100%;
+      max-width: 800px;
+      height: 300px;
+      background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+      border: 3px solid #dee2e6;
+      border-radius: 15px;
+      margin: 1.5rem auto;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      image-rendering: pixelated;
+      transition: all 0.3s ease;
+    }
+
+    .game-canvas:hover {
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+
+    .game-container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin: 2rem auto;
+      max-width: 900px;
+    }
+
+    .game-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .game-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      padding: 0.8rem 2rem;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, var(--primary-color) 0%, #4DB6AC 100%);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    #jogo-instrucao {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #666;
+      font-size: 1.1rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    #distancia {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body style="font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;">
+  <header>
+    <div class="container header-flex">
+      <img src="assets/images/logo_moche.png" alt="Logo MOCHE" class="logo-moche">
+      <div class="header-title">
+        <p>Gamifica a tua experiência. Ganha prémios. Diverte-te!</p>
+      </div>
+      <div class="header-actions">
+        <div id="user-pontos" class="user-pontos"><i class="fa-solid fa-coins"></i> <span id="pontos-header">0</span> pts</div>
+        <button class="header-btn lang-btn" id="btn-pt">PT</button>
+        <button class="header-btn lang-btn" id="btn-en">EN</button>
+        <button class="header-btn profile-btn" onclick="window.location.href='index.html#perfil'">Perfil</button>
+        <button class="header-btn help-btn" onclick="window.open('https://www.moche.pt/ajuda/', '_blank')">Ajuda</button>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Início</a></li>
+        <li><a href="galo_runner.html" class="nav-link active"><i class="fa-solid fa-gamepad"></i> Galo Runner</a></li>
+        <li><a href="jogodogalo.html" class="nav-link"><i class="fa-solid fa-table-cells-large"></i> Jogo do Galo</a></li>
+        <li><a href="index.html#loja" class="nav-link"><i class="fa-solid fa-store"></i> Loja</a></li>
+        <li><a href="index.html#roda" class="nav-link"><i class="fa-solid fa-circle-notch"></i> Roda da Sorte</a></li>
+        <li><a href="index.html#perfil" class="nav-link"><i class="fa-solid fa-user"></i> Perfil</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container" style="margin-top: 60px;">
+    <section class="section" id="jogo-section">
+      <div class="game-container">
+        <h2 id="jogo-title"><i class="fa-solid fa-gamepad"></i> Jogo Galo Runner</h2>
+        <div class="game-stats">
+          <div id="distancia">Distância: <span>0</span> m</div>
+          <div class="user-pontos"><i class="fa-solid fa-coins"></i> <span id="pontos-jogo">0</span> pts</div>
+        </div>
+        <canvas id="galo-canvas" class="game-canvas" width="800" height="300"></canvas>
+        <div class="game-buttons">
+          <button id="btnComecar" class="btn">Começar</button>
+          <button id="btnReiniciar" class="btn" style="display:none;">Recomeçar</button>
+        </div>
+        <div id="jogo-instrucao">
+          <i class="fa-solid fa-keyboard"></i> Pressiona <b>Espaço</b> para saltar!
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/galo_runner.js"></script>
+  <script>
+    // Inicializa o jogo quando a página carregar
+    window.addEventListener('load', () => {
+      // Inicializa o estado do usuário se não existir
+      if (!window.userState) {
+        window.userState = {
+          pontos: 0,
+          historico: []
+        };
+      }
+      
+      // Atualiza os pontos do header
+      updateAllPontos();
+      
+      // Configura os botões do jogo
+      setupGameButtons();
+      
+      // Configura os listeners do menu
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const href = this.getAttribute('href');
+          if (href === 'index.html' || href.startsWith('index.html#')) {
+            window.location.href = href;
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MOCHE Quest - Gamifica a tua experiência MOCHE e ganha prémios">
+  <title>MOCHE Quest</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--primary-color);
+      color: #000;
+      padding: 1rem 2rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .xp-fill {
+      background: #7CD9C8 !important;
+    }
+
+    /* Estilos do Perfil */
+    .profile-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #fff;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    .profile-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+      font-size: 4rem;
+      color: var(--primary-color);
+      margin: 1rem 0;
+    }
+
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .stat-card i {
+      font-size: 2rem;
+      color: var(--primary-color);
+    }
+
+    .stat-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .xp-container {
+      margin: 2rem 0;
+    }
+
+    .xp-bar {
+      height: 20px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .xp-fill {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .xp-text {
+      font-size: 0.9rem;
+      color: #666;
+      text-align: right;
+      display: block;
+    }
+
+    .profile-history {
+      margin-top: 2rem;
+    }
+
+    .profile-history h3 {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: #000;
+      border-radius: var(--border-radius);
+      margin-bottom: 0.5rem;
+      gap: 1rem;
+      color: #FFD700;
+    }
+
+    .history-item span {
+      color: #FFD700;
+    }
+
+    .history-item i {
+      color: #FFD700;
+    }
+
+    .history-date {
+      margin-left: auto;
+      color: #FFD700;
+      font-size: 0.9rem;
+    }
+
+    .lang-select {
+      background: var(--primary-color);
+      color: #000;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      background-size: 1em;
+      padding-right: 2rem;
+      min-width: 80px;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .lang-select:hover {
+      background-color: var(--primary-color-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .lang-select:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
+      background-color: var(--primary-color-dark);
+    }
+
+    .lang-select option {
+      background: #fff;
+      color: #000;
+      padding: 0.5rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .lang-select option:hover {
+      background: var(--primary-color);
+      color: #000;
+    }
+
+    .lang-select option:checked {
+      background: var(--primary-color);
+      color: #000;
+    }
+
+    #wheel {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, var(--primary-color), var(--primary-color-dark));
+      margin: 2rem auto;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      border: 8px solid #fff;
+      transition: all 0.3s ease;
+    }
+
+    #wheel::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    #wheel::after {
+      content: '';
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      border: 4px solid #fff;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    #wheel:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(0,0,0,0.3);
+    }
+
+    #wheel.spinning {
+      animation: spin 2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #result {
+      margin: 1.5rem 0 3rem 0;
+      padding: 1rem;
+      background: var(--primary-color);
+      color: #000;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      opacity: 0;
+      transform: translateY(10px);
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #roda-section button {
+      background: var(--primary-color);
+      color: #000;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0 auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    #roda-section button:hover {
+      background: var(--primary-color-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    #roda-section button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #roda-section button i {
+      font-size: 1.2rem;
+    }
+
+    #roda-section {
+      min-height: calc(100vh - 220px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      margin-top: 4rem;
+      padding-bottom: 0;
+    }
+
+    #jogo-section {
+      margin-top: 4rem;
+    }
+
+    #perfil-section {
+      margin-top: 4rem;
+    }
+
+    .jogos-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+    @media (max-width: 700px) {
+      .jogos-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body style="font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;">
+  <header>
+    <div class="container header-flex">
+      <img src="assets/images/logo_moche.png" alt="Logo MOCHE" class="logo-moche">
+      <div class="header-title">
+        <p>Gamifica a tua experiência. Ganha prémios. Diverte-te!</p>
+      </div>
+      <div class="header-actions">
+        <div id="user-pontos" class="user-pontos"><i class="fa-solid fa-coins"></i> <span id="pontos-header">0</span> pts</div>
+        <select id="language-select" class="header-btn lang-select">
+          <option value="pt">PT</option>
+          <option value="en">EN</option>
+        </select>
+        <button class="header-btn profile-btn" onclick="scrollToProfile()">Perfil</button>
+        <button class="header-btn help-btn" onclick="openHelp()">Ajuda</button>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="#" class="nav-link active" data-section="inicio"><i class="fa-solid fa-house"></i> Início</a></li>
+        <li><a href="#" class="nav-link" data-section="jogo"><i class="fa-solid fa-gamepad"></i> Jogo</a></li>
+        <li><a href="#" class="nav-link" data-section="loja"><i class="fa-solid fa-store"></i> Loja</a></li>
+        <li><a href="#" class="nav-link" data-section="roda"><i class="fa-solid fa-circle-notch"></i> Roda da Sorte</a></li>
+        <li><a href="#" class="nav-link" data-section="perfil"><i class="fa-solid fa-user"></i> Perfil</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="section" id="inicio-section">
+      <h2 id="welcome-title">Bem-vindo à MOCHE!</h2>
+      <img src="assets/images/logo_moche.png" alt="Logo MOCHE" style="max-width:180px; margin: 1.5rem auto 1rem auto; display:block;">
+      <p id="welcome-desc">
+        <strong>MOCHE</strong> é a marca jovem da Altice Portugal, feita para quem quer mais do que um tarifário: quer experiências, prémios, diversão e vantagens exclusivas!<br><br>
+        Aqui podes jogar, ganhar pontos, rodar a Roda da Sorte e trocar pontos por dados, prémios e muito mais na nossa loja.<br><br>
+        Junta-te à comunidade MOCHE e descobre tudo o que temos para ti!
+      </p>
+      <button class="start-btn" id="start-main-btn" onclick="showSection('jogo')">Começar a Jogar</button>
+    </section>
+
+    <section class="section" id="jogo-section" style="display:none;">
+      <h2 id="jogo-title"><i class="fa-solid fa-gamepad"></i> Jogos</h2>
+      <div class="jogos-grid">
+        <a href="galo_runner.html" class="jogo-card">
+          <div class="jogo-card-content">
+            <div class="jogo-icon">
+              <i class="fa-solid fa-gamepad"></i>
+            </div>
+            <div class="jogo-info">
+              <h3>Galo Runner</h3>
+              <p>Um jogo divertido onde controlas um galo que precisa saltar obstáculos!</p>
+              <div class="jogo-stats">
+                <span><i class="fa-solid fa-trophy"></i> Melhor Pontuação: 0</span>
+                <span><i class="fa-solid fa-clock"></i> Última Jogada: Nunca</span>
+              </div>
+            </div>
+            <div class="jogo-play">
+              <i class="fa-solid fa-play"></i>
+              <span>Jogar</span>
+            </div>
+          </div>
+        </a>
+        <a href="jogodogalo.html" class="jogo-card">
+          <div class="jogo-card-content">
+            <div class="jogo-icon">
+              <i class="fa-solid fa-table-cells-large"></i>
+            </div>
+            <div class="jogo-info">
+              <h3>Jogo do Galo</h3>
+              <p>O clássico jogo do galo (tic-tac-toe) contra outro jogador ou o computador!</p>
+              <div class="jogo-stats">
+                <span><i class="fa-solid fa-trophy"></i> Melhor Pontuação: -</span>
+                <span><i class="fa-solid fa-clock"></i> Última Jogada: -</span>
+              </div>
+            </div>
+            <div class="jogo-play">
+              <i class="fa-solid fa-play"></i>
+              <span>Jogar</span>
+            </div>
+          </div>
+        </a>
+        <div class="jogo-card coming-soon">
+          <div class="jogo-card-content">
+            <div class="jogo-icon">
+              <i class="fa-solid fa-lock"></i>
+            </div>
+            <div class="jogo-info">
+              <h3>Em Breve</h3>
+              <p>Novos jogos emocionantes estão a caminho!</p>
+              <div class="jogo-stats">
+                <span><i class="fa-solid fa-hourglass-half"></i> Em Desenvolvimento</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section loja" id="loja-section" style="display:none;">
+      <h2 id="loja-title"><i class="fa-solid fa-store"></i> Loja</h2>
+      <div class="loja-grid">
+        <div class="produto">
+          <i class="fa-solid fa-database"></i>
+          <span>500MB Dados</span>
+          <button class="btn comprar-btn" data-preco="30">Comprar (30 pts)</button>
+        </div>
+        <div class="produto">
+          <i class="fa-solid fa-database"></i>
+          <span>1GB Dados</span>
+          <button class="btn comprar-btn" data-preco="50">Comprar (50 pts)</button>
+        </div>
+        <div class="produto">
+          <i class="fa-solid fa-shirt"></i>
+          <span>T-shirt MOCHE</span>
+          <button class="btn comprar-btn" data-preco="120">Comprar (120 pts)</button>
+        </div>
+        <div class="produto">
+          <i class="fa-solid fa-ticket"></i>
+          <span>Cupão Spotify</span>
+          <button class="btn comprar-btn" data-preco="80">Comprar (80 pts)</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="roda-section" style="display:none;">
+      <h2 id="roda-title">🎡 Roda da Sorte</h2>
+      <div id="wheel">GIRA</div>
+      <button class="btn" onclick="spinWheel()">Girar</button>
+      <div id="result"></div>
+    </section>
+
+    <section class="section profile" id="perfil-section" style="display:none;">
+      <div class="profile-container">
+        <div class="profile-header">
+          <h2 id="perfil-title"><i class="fa-solid fa-user"></i> O Teu Perfil</h2>
+          <div class="profile-avatar">
+            <i class="fa-solid fa-user-circle"></i>
+          </div>
+        </div>
+        
+        <div class="profile-stats">
+          <div class="stat-card">
+            <i class="fa-solid fa-trophy"></i>
+            <div class="stat-info">
+              <span class="stat-label">Nível</span>
+              <span class="stat-value">2</span>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <i class="fa-solid fa-coins"></i>
+            <div class="stat-info">
+              <span class="stat-label">Pontos</span>
+              <span class="stat-value" id="pontos-perfil">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="xp-container">
+          <div class="xp-bar">
+            <div class="xp-fill" id="xpBar"></div>
+          </div>
+          <span class="xp-text">Progresso: 0%</span>
+        </div>
+
+        <div class="profile-history">
+          <h3><i class="fa-solid fa-clock-rotate-left"></i> Histórico</h3>
+          <ul id="historico-list" class="historico-list">
+            <li class="history-item">
+              <i class="fa-solid fa-gamepad"></i>
+              <span>Jogaste Galo Runner</span>
+              <span class="history-date">Hoje</span>
+            </li>
+            <li class="history-item">
+              <i class="fa-solid fa-store"></i>
+              <span>Compra de 500MB Dados</span>
+              <span class="history-date">Ontem</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="assets/images/logo_moche.png" alt="Logo MOCHE" class="logo-moche">
+          <span>MOCHE Quest</span>
+        </div>
+        <div class="footer-info">
+          <p>Plataforma de Gamificação</p>
+          <p>Desenvolvido por <a href="https://github.com/LuquinhasCTR" target="_blank">Lucas Silva</a> e <a href="https://github.com/simao261" target="_blank">Simão Rodrigues</a> &copy; 2025</p>
+          <p>Uma marca da Altice Portugal</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://www.moche.pt/ajuda/" target="_blank"><i class="fa-solid fa-circle-question"></i> Ajuda</a>
+          <a href="https://www.moche.pt/termos/" target="_blank"><i class="fa-solid fa-file-contract"></i> Termos e Condições</a>
+          <a href="https://www.moche.pt/privacidade/" target="_blank"><i class="fa-solid fa-shield-halved"></i> Privacidade</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Todos os direitos reservados. MOCHE é uma marca registada da Altice Portugal.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Funções de tradução
+    const translations = {
+      pt: {
+        welcomeTitle: "Bem-vindo à MOCHE!",
+        welcomeDesc: "<strong>MOCHE</strong> é a marca jovem da Altice Portugal, feita para quem quer mais do que um tarifário: quer experiências, prémios, diversão e vantagens exclusivas!<br><br>Aqui podes jogar, ganhar pontos, rodar a Roda da Sorte e trocar pontos por dados, prémios e muito mais na nossa loja.<br><br>Junta-te à comunidade MOCHE e descobre tudo o que temos para ti!",
+        startButton: "Começar a Jogar",
+        gamesTitle: "Jogos",
+        galoRunner: "Galo Runner",
+        galoRunnerDesc: "Um jogo divertido onde controlas um galo que precisa saltar obstáculos!",
+        bestScore: "Melhor Pontuação",
+        lastPlay: "Última Jogada",
+        never: "Nunca",
+        play: "Jogar",
+        comingSoon: "Em Breve",
+        comingSoonDesc: "Novos jogos emocionantes estão a caminho!",
+        inDevelopment: "Em Desenvolvimento",
+        storeTitle: "Loja",
+        buy: "Comprar",
+        wheelTitle: "🎡 Roda da Sorte",
+        spin: "Girar",
+        profileTitle: "O Teu Perfil",
+        level: "Nível",
+        points: "Pontos",
+        progress: "Progresso",
+        history: "Histórico",
+        help: "Ajuda",
+        profile: "Perfil",
+        home: "Início",
+        games: "Jogos",
+        store: "Loja",
+        wheel: "Roda da Sorte",
+        platform: "Plataforma de Gamificação",
+        developedBy: "Desenvolvido por",
+        rights: "Todos os direitos reservados. MOCHE é uma marca registada da Altice Portugal.",
+        altice: "Uma marca da Altice Portugal",
+        helpLink: "Ajuda",
+        termsLink: "Termos e Condições",
+        privacyLink: "Privacidade"
+      },
+      en: {
+        welcomeTitle: "Welcome to MOCHE!",
+        welcomeDesc: "<strong>MOCHE</strong> is the youth brand of Altice Portugal, made for those who want more than just a tariff: they want experiences, prizes, fun and exclusive benefits!<br><br>Here you can play, earn points, spin the Wheel of Fortune and exchange points for data, prizes and much more in our store.<br><br>Join the MOCHE community and discover everything we have for you!",
+        startButton: "Start Playing",
+        gamesTitle: "Games",
+        galoRunner: "Galo Runner",
+        galoRunnerDesc: "A fun game where you control a rooster that needs to jump obstacles!",
+        bestScore: "Best Score",
+        lastPlay: "Last Play",
+        never: "Never",
+        play: "Play",
+        comingSoon: "Coming Soon",
+        comingSoonDesc: "New exciting games are on the way!",
+        inDevelopment: "In Development",
+        storeTitle: "Store",
+        buy: "Buy",
+        wheelTitle: "🎡 Wheel of Fortune",
+        spin: "Spin",
+        profileTitle: "Your Profile",
+        level: "Level",
+        points: "Points",
+        progress: "Progress",
+        history: "History",
+        help: "Help",
+        profile: "Profile",
+        home: "Home",
+        games: "Games",
+        store: "Store",
+        wheel: "Wheel of Fortune",
+        platform: "Gamification Platform",
+        developedBy: "Developed by",
+        rights: "All rights reserved. MOCHE is a registered trademark of Altice Portugal.",
+        altice: "A brand of Altice Portugal",
+        helpLink: "Help",
+        termsLink: "Terms and Conditions",
+        privacyLink: "Privacy"
+      }
+    };
+
+    let currentLang = 'pt';
+
+    function translatePage(lang) {
+      currentLang = lang;
+      const t = translations[lang];
+
+      // Atualiza o texto dos elementos
+      document.getElementById('welcome-title').textContent = t.welcomeTitle;
+      document.getElementById('welcome-desc').innerHTML = t.welcomeDesc;
+      document.getElementById('start-main-btn').textContent = t.startButton;
+      document.getElementById('jogo-title').innerHTML = `<i class="fa-solid fa-gamepad"></i> ${t.gamesTitle}`;
+      document.querySelector('.jogo-info h3').textContent = t.galoRunner;
+      document.querySelector('.jogo-info p').textContent = t.galoRunnerDesc;
+      document.querySelector('.jogo-stats span:first-child').innerHTML = `<i class="fa-solid fa-trophy"></i> ${t.bestScore}: 0`;
+      document.querySelector('.jogo-stats span:last-child').innerHTML = `<i class="fa-solid fa-clock"></i> ${t.lastPlay}: ${t.never}`;
+      document.querySelector('.jogo-play span').textContent = t.play;
+      document.querySelector('.coming-soon h3').textContent = t.comingSoon;
+      document.querySelector('.coming-soon p').textContent = t.comingSoonDesc;
+      document.querySelector('.coming-soon .jogo-stats span').innerHTML = `<i class="fa-solid fa-hourglass-half"></i> ${t.inDevelopment}`;
+      document.getElementById('loja-title').innerHTML = `<i class="fa-solid fa-store"></i> ${t.storeTitle}`;
+      document.querySelectorAll('.comprar-btn').forEach(btn => {
+        btn.textContent = `${t.buy} (${btn.dataset.preco} pts)`;
+      });
+      document.getElementById('roda-title').textContent = t.wheelTitle;
+      document.querySelector('#roda-section button').textContent = t.spin;
+      document.getElementById('perfil-title').innerHTML = `<i class="fa-solid fa-user"></i> ${t.profileTitle}`;
+      document.querySelector('.stat-label:first-child').textContent = t.level;
+      document.querySelector('.stat-label:last-child').textContent = t.points;
+      document.querySelector('.xp-text').textContent = `${t.progress}: 0%`;
+      document.querySelector('.profile-history h3').innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> ${t.history}`;
+      document.querySelector('.help-btn').textContent = t.help;
+      document.querySelector('.profile-btn').textContent = t.profile;
+      document.querySelector('.nav-link[data-section="inicio"]').innerHTML = `<i class="fa-solid fa-house"></i> ${t.home}`;
+      document.querySelector('.nav-link[data-section="jogo"]').innerHTML = `<i class="fa-solid fa-gamepad"></i> ${t.games}`;
+      document.querySelector('.nav-link[data-section="loja"]').innerHTML = `<i class="fa-solid fa-store"></i> ${t.store}`;
+      document.querySelector('.nav-link[data-section="roda"]').innerHTML = `<i class="fa-solid fa-circle-notch"></i> ${t.wheel}`;
+      document.querySelector('.nav-link[data-section="perfil"]').innerHTML = `<i class="fa-solid fa-user"></i> ${t.profile}`;
+
+      // Atualiza o rodapé
+      const footer = document.querySelector('footer.site-footer');
+      if (footer) {
+        // Atualiza as informações do rodapé
+        footer.querySelector('.footer-info p:nth-of-type(1)').textContent = t.platform;
+        footer.querySelector('.footer-info p:nth-of-type(2)').innerHTML = `${t.developedBy} <a href="https://github.com/LuquinhasCTR" target="_blank">Lucas Silva</a> e <a href="https://github.com/simao261" target="_blank">Simão Rodrigues</a> &copy; 2025`;
+        footer.querySelector('.footer-info p:nth-of-type(3)').textContent = t.altice;
+        
+        // Atualiza os links do rodapé
+        footer.querySelector('.footer-links a:nth-of-type(1)').innerHTML = `<i class="fa-solid fa-circle-question"></i> ${t.helpLink}`;
+        footer.querySelector('.footer-links a:nth-of-type(2)').innerHTML = `<i class="fa-solid fa-file-contract"></i> ${t.termsLink}`;
+        footer.querySelector('.footer-links a:nth-of-type(3)').innerHTML = `<i class="fa-solid fa-shield-halved"></i> ${t.privacyLink}`;
+        
+        // Atualiza o texto de direitos autorais
+        footer.querySelector('.footer-bottom p').textContent = t.rights;
+      }
+    }
+
+    // Adiciona evento ao select de idioma
+    document.getElementById('language-select').addEventListener('change', function() {
+      translatePage(this.value);
+    });
+
+    function scrollToProfile() {
+      showSection('perfil');
+      const pontos = document.getElementById('pontos-header').textContent;
+      document.getElementById('pontos-perfil').textContent = pontos;
+      
+      const xpBar = document.getElementById('xpBar');
+      const xpText = document.querySelector('.xp-text');
+      const progresso = Math.min(parseInt(pontos), 100);
+      xpBar.style.width = `${progresso}%`;
+      xpText.textContent = `${translations[currentLang].progress}: ${progresso}%`;
+    }
+
+    function adicionarHistoricoRoda(premio) {
+      const historicoList = document.getElementById('historico-list');
+      const novoItem = document.createElement('li');
+      novoItem.className = 'history-item';
+      
+      const dataAtual = new Date();
+      const dataFormatada = dataAtual.toLocaleDateString('pt-PT', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric' 
+      });
+      
+      novoItem.innerHTML = `
+        <i class="fa-solid fa-circle-notch"></i>
+        <span>Ganhou ${premio} na Roda da Sorte</span>
+        <span class="history-date">${dataFormatada}</span>
+      `;
+      
+      historicoList.insertBefore(novoItem, historicoList.firstChild);
+    }
+
+    function openHelp() {
+      window.open('https://www.moche.pt/ajuda/', '_blank');
+    }
+    // SPA navigation
+    function showSection(sec) {
+      const sections = ['inicio', 'jogo', 'loja', 'roda', 'perfil'];
+      sections.forEach(s => {
+        document.getElementById(s+'-section').style.display = (s === sec) ? '' : 'none';
+      });
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.toggle('active', link.dataset.section === sec);
+      });
+    }
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        showSection(this.dataset.section);
+      });
+    });
+    // Default section
+    showSection('inicio');
+
+    function mostrarNotificacao(mensagem) {
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = mensagem;
+      document.body.appendChild(notification);
+      
+      // Remove a notificação após 3 segundos
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
+    function spinWheel() {
+      const wheel = document.getElementById('wheel');
+      const result = document.getElementById('result');
+      const spinButton = document.querySelector('#roda-section button');
+      
+      // Desativa o botão durante a animação
+      spinButton.disabled = true;
+      
+      // Adiciona a classe de animação
+      wheel.classList.add('spinning');
+      
+      // Lista de prêmios possíveis
+      const premios = ['500MB Dados', '1GB Dados', 'T-shirt MOCHE', 'Cupão Spotify'];
+      
+      // Após a animação, mostra o resultado
+      setTimeout(() => {
+        // Seleciona apenas um prêmio
+        const premio = premios[Math.floor(Math.random() * premios.length)];
+        const mensagem = `Parabéns! Ganhaste ${premio}!`;
+        
+        // Limpa o resultado anterior
+        result.textContent = '';
+        
+        // Mostra o novo resultado
+        result.textContent = mensagem;
+        result.classList.add('show');
+        
+        // Mostra a notificação
+        mostrarNotificacao(mensagem);
+        
+        // Adiciona ao histórico apenas uma vez
+        adicionarHistoricoRoda(premio);
+        
+        // Remove a classe de animação
+        wheel.classList.remove('spinning');
+        
+        // Reativa o botão
+        spinButton.disabled = false;
+      }, 2000);
+    }
+
+    function comprarProduto(produto, preco) {
+      const pontosAtuais = parseInt(document.getElementById('pontos-header').textContent);
+      
+      if (pontosAtuais >= preco) {
+        // Atualiza os pontos
+        const novosPontos = pontosAtuais - preco;
+        window.userState.pontos = novosPontos;
+        atualizarPontos();
+        
+        // Mostra notificação
+        mostrarNotificacao(`Compra realizada com sucesso!`);
+        
+        // Adiciona ao histórico
+        const historicoList = document.getElementById('historico-list');
+        const novoItem = document.createElement('li');
+        novoItem.className = 'history-item';
+        
+        const dataAtual = new Date();
+        const dataFormatada = dataAtual.toLocaleDateString('pt-PT', { 
+          day: '2-digit', 
+          month: '2-digit', 
+          year: 'numeric' 
+        });
+        
+        novoItem.innerHTML = `
+          <i class="fa-solid fa-store"></i>
+          <span>Compra de ${produto}</span>
+          <span class="history-date">${dataFormatada}</span>
+        `;
+        
+        historicoList.insertBefore(novoItem, historicoList.firstChild);
+      } else {
+        mostrarNotificacao('Pontos insuficientes!');
+      }
+    }
+
+    // Adiciona eventos de clique aos botões de compra
+    document.querySelectorAll('.comprar-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const produto = this.parentElement.querySelector('span').textContent;
+        const preco = parseInt(this.dataset.preco);
+        comprarProduto(produto, preco);
+      });
+    });
+
+    function atualizarPontos() {
+      const pontos = window.userState?.pontos || 0;
+      document.getElementById('pontos-header').textContent = pontos;
+      document.getElementById('pontos-perfil').textContent = pontos;
+      // Salva os pontos no localStorage
+      localStorage.setItem('moche_pontos', pontos);
+    }
+
+    // Atualiza os pontos quando a página carrega
+    window.addEventListener('load', () => {
+      // Lê os pontos do localStorage
+      const pontosSalvos = parseInt(localStorage.getItem('moche_pontos'));
+      if (!window.userState) {
+        window.userState = { pontos: 0, historico: [] };
+      }
+      if (!isNaN(pontosSalvos)) {
+        window.userState.pontos = pontosSalvos;
+      }
+      atualizarPontos();
+    });
+  </script>
+</body>
+</html>
